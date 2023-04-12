@@ -1,0 +1,94 @@
+package project_two;
+import java.sql.*;
+import java.util.Scanner;
+public class Java {
+
+	    static Scanner sc = new Scanner(System.in);
+
+	    // Connection parameters
+	    static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+	    static final String DB_URL = "jdbc:mysql://localhost:3306/user";
+	    static final String USER = "root";
+	    static final String PASS = "athreya84";
+
+	    public static void main(String[] args) {
+	        Connection conn = null;
+	        Statement stmt = null;
+
+	        try {
+	            // Register JDBC driver
+	            Class.forName(JDBC_DRIVER);
+
+	            // Open a connection
+	            conn = DriverManager.getConnection(DB_URL, USER, PASS);
+
+	            // Execute a query to create the appointments table if it doesn't exist
+	            stmt = conn.createStatement();
+	            String sql = "CREATE TABLE IF NOT EXISTS info " +
+	                    "(id INTEGER not NULL AUTO_INCREMENT, " +
+	                    " patient_name VARCHAR(255), " +
+	                    " doctor_name VARCHAR(255), " +
+	                    "comments VARCHAR(225)," +
+	                    " appointment_date DATE, " +
+	                    " PRIMARY KEY ( id ))";
+	            stmt.executeUpdate(sql);
+
+	            // Get appointment details from user input
+	            System.out.print("Enter patient name: ");
+	            String patientName = sc.nextLine();
+	            System.out.print("Enter doctor name: ");
+	            String doctorName = sc.nextLine();
+	            System.out.println("enter the sickness/comments:");
+	            String comments=sc.nextLine();
+	            System.out.print("Enter appointment date (YYYY-MM-DD): ");
+	            String appointmentDate = sc.nextLine();
+	            
+
+	            // Insert a new appointment
+	            sql = "INSERT INTO info (patient_name, doctor_name, comments, appointment_date) " +
+	                    "VALUES ('" + patientName + "', '" + doctorName + "','"+comments +"', '" + appointmentDate + "')";
+	            stmt.executeUpdate(sql);
+
+	            // Fetch all appointments
+	            sql = "SELECT id, patient_name, doctor_name, comments, appointment_date FROM info";
+	            ResultSet rs = stmt.executeQuery(sql);
+
+	            // Process the result set
+	            while (rs.next()) {
+	                int id = rs.getInt("id");
+	                String pName = rs.getString("patient_name");
+	                String dName = rs.getString("doctor_name");
+	                String comM = rs.getString("comments");
+	                Date aDate = rs.getDate("appointment_date");
+
+	                System.out.println("Appointment ID: " + id);
+	                System.out.println("Patient Name: " + pName);
+	                System.out.println("Doctor Name: " + dName);
+	                System.out.println("comments/sickness:"+comM);
+	                System.out.println("Appointment Date: " + aDate);
+	            }
+
+	            // Clean-up environment
+	            rs.close();
+	            stmt.close();
+	            conn.close();
+	        } catch (SQLException se) {
+	            // Handle errors for JDBC
+	            se.printStackTrace();
+	        } catch (Exception e) {
+	            // Handle errors for Class.forName
+	            e.printStackTrace();
+	        } finally {
+	            // Finally block used to close resources
+	            try {
+	                if (stmt != null) stmt.close();
+	            } catch (SQLException se2) {
+	            } // nothing we can do
+	            try {
+	                if (conn != null) conn.close();
+	            } catch (SQLException se) {
+	                se.printStackTrace();
+	            } // end finally try
+	        } // end try
+	    }
+	}
